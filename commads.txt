@@ -3,3 +3,6 @@ docker build --no-cache -t laravel-nginx .
 
 # Run the nginx server
 docker run --rm -p 80:80 -v /home/alam/code/laravel-docker/src:/var/www/html/public laravel-nginx
+
+# Build the php container
+docker-compose up --build
