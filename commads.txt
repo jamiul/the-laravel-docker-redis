@@ -6,3 +6,9 @@ docker run --rm -p 80:80 -v /home/alam/code/laravel-docker/src:/var/www/html/pub
 
 # Build the php container
 docker-compose up --build
+
+# Artisan
+docker-compose run --rm artisan
+
+# NPM
+docker-compose run --rm npm install
