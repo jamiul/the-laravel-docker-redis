@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: dockerfiles/nginx.dockerfile
+    container_name: "web"
+    ports:
+      - 80:80
+    volumes:
+      - ../src:/var/www/html
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - php
+  mysql:
+    image: mysql:5.7
+    container_name: "database"
+    ports:
+      - 3306:3306
+    restart: "on-failure"
+    env_file:
+      - ./env/mysql.env
+    networks:
+      - backend
+    volumes:
+      - ./mysql:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: "phpmyadmin"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: forum
+      PMA_PASSWORD: forumtdd
+    networks:
+      - backend
+    ports:
+      - "8080:80"
+  php:
+    build:
+      context: .
+      dockerfile: dockerfiles/php.dockerfile
+    container_name: "php"
+    volumes:
+      - ../src:/var/www/html
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - mysql
+      - phpmyadmin
+  composer:
+    build:
+      context: .
+      dockerfile: dockerfiles/composer.dockerfile
+    volumes:
+      - ../src:/var/www/html
+    networks:
+      - backend
+    working_dir: /var/www/html
+  npm:
+    image: node:16.13.2-slim
+    volumes:
+      - ../src:/var/www/html
+    networks:
+      - frontend
+      - backend
+    entrypoint: ["npm"]
+    working_dir: /var/www/html
+  artisan:
+    build:
+      context: .
+      dockerfile: dockerfiles/php.dockerfile
+    volumes:
+      - ../src:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - mysql
+    entrypoint: ["php", "/var/www/html/artisan"]
+    networks:
+      - backend
+
+#
+# Network Definition
+#
+
+networks:
+  frontend:
+    name: nw_frontend
+    driver: bridge
+  backend:
+    name: nw_backend
+    driver: bridge
