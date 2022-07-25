@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   nginx:
@@ -52,6 +52,7 @@ services:
     depends_on:
       - mysql
       - phpmyadmin
+      - cache
   composer:
     build:
       context: .
@@ -95,6 +96,16 @@ services:
     entrypoint: [/var/www/html/vendor/bin/phpunit]
     networks:
       - backend
+  cache:
+    image: redis:7.0.4
+    container_name: cache
+    ports:
+      - 63790:6379
+    volumes:
+      - ./redis/data:/data
+    networks:
+      - backend
+
 
 #
 # Network Definition
